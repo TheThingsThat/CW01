@@ -2,6 +2,7 @@ package com.example.cw01;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -75,13 +77,17 @@ public class PersonalInfoManager extends Application {
             }
         });
 
-        nameField.setOnKeyPressed(e -> {if (e.getCode() == KeyCode.ENTER) addContact();});
-        emailField.setOnKeyPressed(e -> {if (e.getCode() == KeyCode.ENTER) addContact();});
-        phoneField.setOnKeyPressed(e -> {if (e.getCode() == KeyCode.ENTER) addContact();});
+        EventHandler<KeyEvent> tfKeys = e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                addContact();
+            } else if (e.getCode() == KeyCode.ESCAPE) {
+                clearFields();
+            }
+        };
 
-        nameField.setOnKeyPressed(e -> {if (e.getCode() == KeyCode.ESCAPE) clearFields();});
-        emailField.setOnKeyPressed(e -> {if (e.getCode() == KeyCode.ESCAPE) clearFields();});
-        phoneField.setOnKeyPressed(e -> {if (e.getCode() == KeyCode.ESCAPE) clearFields();});
+        nameField.setOnKeyPressed(tfKeys);
+        emailField.setOnKeyPressed(tfKeys);
+        phoneField.setOnKeyPressed(tfKeys);
     }
 
     private Region mainPage() {
@@ -197,7 +203,6 @@ public class PersonalInfoManager extends Application {
         ScrollPane scrollPane = new ScrollPane(contactBox);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefHeight(220);
-     //   scrollPane.setStyle("-fx-background: transparent;" + "-fx-background-color: transparent;");
 
         return scrollPane;
     }
@@ -227,19 +232,21 @@ public class PersonalInfoManager extends Application {
     }
 
     private void displayContacts() {
-        Region contactPage = contactsPage();
+        mainBox.getChildren().removeIf(n -> n instanceof ScrollPane);
 
-//        if (mainBox.getChildren().size() > 2) {
-//            mainBox.getChildren().remove(2);
-//        }
+        VBox list = new VBox(8);
+        list.setAlignment(Pos.CENTER_LEFT);
+        for (String c : contacts) {
+                Label l = new Label(c);
+                l.setTextFill(Color.web(CText));
+                list.getChildren().add(l);
+            }
 
-        for (int i = 0; i < contacts.size(); i++) {
-            Label label = new Label(contacts.get(i));
-            label.setTextFill(Color.web(CText));
-//        label.setTextFill(Color.color(1, 0, 0));
-            contactBox.getChildren().add(label);
-        }
-        mainBox.getChildren().add(contactPage);
+            ScrollPane sp = new ScrollPane(list);
+            sp.setFitToWidth(true);
+            sp.setPrefHeight(220);
+
+            mainBox.getChildren().add(sp);
     }
 
     private boolean testPhone(String phoneString) {
